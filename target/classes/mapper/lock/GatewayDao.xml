@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.h3c.cloud.modules.lock.dao.GatewayDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.h3c.cloud.modules.lock.entity.GatewayEntity" id="gatewayMap">
+     	<result property="gwId" column="gw_id"/>
+     	<result property="gwSn" column="gw_sn"/>
+        <result property="userId" column="user_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+	<select id="queryObject" resultType="com.h3c.cloud.modules.lock.entity.GatewayEntity">
+		select * from tb_gateway where gw_id = #{value}
+	</select>
+
+	<select id="queryList" resultType="com.h3c.cloud.modules.lock.entity.GatewayEntity">
+		select * from tb_gateway
+		<where>
+			<if test="userId != null">
+				and `user_id` = #{userId} 
+			</if>
+		</where>
+        <choose>
+           <when test="sidx != null and sidx.trim() != ''">
+                order by ${sidx} ${order}
+            </when>
+			<otherwise>
+                order by gw_id desc
+			</otherwise>
+        </choose>
+		<!-- <if test="offset != null and limit != null">
+			limit #{offset}, #{limit}
+		</if> -->
+	</select>
+	
+ 	<select id="queryTotal" resultType="int">
+		select count(*) from tb_gateway 
+	</select>
+
+	 
+	<insert id="save" parameterType="com.h3c.cloud.modules.lock.entity.GatewayEntity" useGeneratedKeys="true" keyProperty="gwId">
+		insert into tb_gateway
+		(
+			`gw_sn`, 
+			`user_Id`, 
+			`create_time`, 
+			`update_time`
+		)
+		values
+		(
+			#{gwSn}, 
+			#{userId}, 
+			#{createTime}, 
+			#{updateTime}
+		)
+	</insert>
+	 
+	<update id="update" parameterType="com.h3c.cloud.modules.lock.entity.GatewayEntity">
+		update tb_gateway 
+		<set>
+			<if test="gwSn != null">`gw_sn` = #{gwSn}, </if>
+			<if test="updateTime != null">`update_time` = #{updateTime}</if>
+		</set>
+		where gw_id = #{gwId}
+	</update>
+	
+	<delete id="delete">
+		delete from tb_gateway where gw_id = #{value}
+	</delete>
+	
+	<delete id="deleteBatch">
+		delete from tb_gateway where gw_id in 
+		<foreach item="gwIds" collection="array" open="(" separator="," close=")">
+			#{gwIds}
+		</foreach>
+	</delete>
+
+</mapper>
